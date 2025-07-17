@@ -4,8 +4,13 @@ set -e
 
 echo "==> Starting Teal-Memory setup..."
 
-# === 1. Required packages ===
-echo "==> Installing base packages..."
+# === 1. Check for Wayland support ===
+if [ "$XDG_SESSION_TYPE" != "wayland" ]; then
+  echo "⚠️  Warning: You are not in a Wayland session. Hyprland requires Wayland to run."
+fi
+
+# === 2. Required packages ===
+echo "==> Installing core packages..."
 
 PKGS=(
   git
@@ -30,11 +35,17 @@ PKGS=(
   gtk4
   go
   systemd
+  swww
+  waypaper
 )
 
 sudo pacman -Syu --needed --noconfirm "${PKGS[@]}"
 
-# === 2. Optional AUR support ===
+# === 3. Fonts ===
+echo "==> Installing fonts..."
+sudo pacman -S --needed --noconfirm ttf-jetbrains-mono ttf-font-awesome noto-fonts noto-fonts-emoji
+
+# === 4. yay (AUR helper) ===
 if ! command -v yay &> /dev/null; then
   echo "==> Installing yay AUR helper..."
   git clone https://aur.archlinux.org/yay.git /tmp/yay
@@ -43,13 +54,13 @@ if ! command -v yay &> /dev/null; then
   cd ~
 fi
 
-# === 3. Clone repo if needed ===
+# === 5. Clone repo if needed ===
 if [ ! -d "$HOME/Teal-Memory" ]; then
   echo "==> Cloning dotfiles repo..."
   git clone git@github.com:BrianPalacio/Teal-Memory.git "$HOME/Teal-Memory"
 fi
 
-# === 4. Copy config folders ===
+# === 6. Copy config folders ===
 echo "==> Copying config files to ~/.config..."
 
 CONFIGS=(
@@ -67,12 +78,19 @@ for folder in "${CONFIGS[@]}"; do
   cp -r "$HOME/Teal-Memory/.config/$folder" "$HOME/.config/"
 done
 
-# === 5. Shell setup ===
+# === 7. Wallpaper setup (optional) ===
+if [ -d "$HOME/Teal-Memory/wallpapers" ]; then
+  echo "==> Copying wallpapers..."
+  mkdir -p "$HOME/Pictures/wallpapers"
+  cp -r "$HOME/Teal-Memory/wallpapers/"* "$HOME/Pictures/wallpapers/"
+fi
+
+# === 8. Set zsh as default shell ===
 echo "==> Setting zsh as default shell..."
 chsh -s "$(which zsh)"
 
-# === 6. Final message ===
+# === 9. Done ===
 echo ""
 echo "✅ Teal-Memory setup complete!"
-echo "You can now log out and select Hyprland to start."
+echo "📦 Packages installed, configs copied, Wayland tools r
 
