@@ -54,13 +54,7 @@ if ! command -v yay &> /dev/null; then
   cd ~
 fi
 
-# === 5. Clone repo if needed ===
-if [ ! -d "$HOME/Teal-Memory" ]; then
-  echo "==> Cloning dotfiles repo..."
-  git clone git@github.com:BrianPalacio/Teal-Memory.git "$HOME/Teal-Memory"
-fi
-
-# === 6. Copy config folders ===
+# === 5. Copy config folders ===
 echo "==> Copying config files to ~/.config..."
 
 CONFIGS=(
@@ -78,7 +72,18 @@ for folder in "${CONFIGS[@]}"; do
   cp -r "$HOME/Teal-Memory/.config/$folder" "$HOME/.config/"
 done
 
-# === 7. Wallpaper setup (optional) ===
+# === 6. Copy .ml4w hidden folders ===
+echo "==> Copying .ml4w folders..."
+
+for hidden_dir in .ml4w .ml4w-hyprland; do
+  if [ -d "$HOME/Teal-Memory/$hidden_dir" ]; then
+    echo "  -> $hidden_dir"
+    rm -rf "$HOME/$hidden_dir"
+    cp -r "$HOME/Teal-Memory/$hidden_dir" "$HOME/"
+  fi
+done
+
+# === 7. Copy wallpapers if available ===
 if [ -d "$HOME/Teal-Memory/wallpapers" ]; then
   echo "==> Copying wallpapers..."
   mkdir -p "$HOME/Pictures/wallpapers"
@@ -89,8 +94,9 @@ fi
 echo "==> Setting zsh as default shell..."
 chsh -s "$(which zsh)"
 
-# === 9. Done ===
+# === 9. Final message ===
 echo ""
 echo "✅ Teal-Memory setup complete!"
-echo "📦 Packages installed, configs copied, Wayland tools r
+echo "📦 Packages installed, configs copied, Wayland tools ready."
+echo "🚀 Log out and select Hyprland from the login screen to begin."
 
